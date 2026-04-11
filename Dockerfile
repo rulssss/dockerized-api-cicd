@@ -20,4 +20,4 @@ EXPOSE 3000
 USER node
 
 # Comando de inicio
-CMD ["node", "index.js"]
+CMD ["node", "index.js"] 
