@@ -11,7 +11,7 @@ COPY app/package*.json ./
 RUN npm install --production
 
 # Copiar el resto del código
-COPY apps/ .
+COPY app/ .
 
 # Exponer puerto
 EXPOSE 3000
