@@ -39,6 +39,6 @@ jobs:
       - name: Forzar nuevo deployment en ECS
         run: |
           aws ecs update-service \
-            --cluster TU_CLUSTER \
-            --service TU_SERVICE \
+            --cluster dockerized-api-cluster \
+            --service dockerized-api-task-service \
             --force-new-deployment
