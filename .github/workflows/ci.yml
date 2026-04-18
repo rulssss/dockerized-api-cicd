@@ -3,9 +3,7 @@ name: CI Pipeline
 on:
   pull_request:
     branches: [ "main" ]
-    paths:
-      - 'app/**'
-      - 'Dockerfile'
+    
 
 jobs:
   ci:
