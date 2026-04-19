@@ -38,7 +38,7 @@ jobs:
       - name: Register new task definition
         run: |
           aws ecs register-task-definition \
-            --family dockerized-api \
+            --family dockerized-api-task \
             --network-mode awsvpc \
             --requires-compatibilities FARGATE \
             --cpu "256" \
