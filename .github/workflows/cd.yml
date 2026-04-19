@@ -34,7 +34,20 @@ jobs:
       - name: Push
         run: |
           docker push 630968569878.dkr.ecr.sa-east-1.amazonaws.com/dockerized-api:${{ github.sha }}
-
+      
+      - name: Register new task definition
+        run: |
+          aws ecs register-task-definition \
+            --family dockerized-api \
+            --network-mode awsvpc \
+            --requires-compatibilities FARGATE \
+            --cpu "256" \
+            --memory "512" \
+            --container-definitions "[{
+              \"name\": \"dockerized-api\",
+              \"image\": \"630968569878.dkr.ecr.sa-east-1.amazonaws.com/dockerized-api:${{ github.sha }}\",
+              \"portMappings\": [{\"containerPort\": 3000}]
+            }]"
       - name: Deploy STAGING
         run: |
           aws ecs update-service \
