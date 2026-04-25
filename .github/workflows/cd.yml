@@ -54,6 +54,9 @@ jobs:
                   \"awslogs-group\": \"/ecs/dockerized-api\",
                   \"awslogs-region\": \"sa-east-1\",
                   \"awslogs-stream-prefix\": \"ecs\"
+
+                }
+              }
             }]"
 
       - name: Deploy STAGING
