@@ -1,4 +1,4 @@
-# 🚀 CI/CD with AWS ECS (Staging + Production + Rollback)
+# 🚀 CI/CD with AWS ECS (Staging + Production + Rollback + Observability)
 
 ## 📌 Description
 
@@ -8,6 +8,8 @@ This project implements a complete **CI/CD pipeline** using:
 * AWS ECS (Fargate)
 * Amazon ECR (container registry)
 * Application Load Balancer (ALB)
+* CloudWatch (logs, metrics, alarms)
+* Amazon SNS (notifications)
 
 The goal is to simulate a real-world environment with:
 
@@ -15,6 +17,7 @@ The goal is to simulate a real-world environment with:
 * Manual approval for production deployments
 * Version promotion between environments
 * Functional and tested rollback
+* Basic observability (logs, metrics, alerts)
 * Cost control
 
 ---
@@ -25,11 +28,17 @@ The goal is to simulate a real-world environment with:
 GitHub → CI → CD → ECR → ECS (Fargate)
                            ├── staging (/staging)
                            └── production (/)
+
+Users → ALB → Target Groups → ECS Services → DynamoDB
+                     ↓
+               CloudWatch
+        (Logs + Metrics + Alarms)
 ```
 
-* **Staging**: testing environment
-* **Production**: stable environment
-* **ALB**: routes traffic based on path
+* **Staging**: testing environment  
+* **Production**: stable environment  
+* **ALB**: routes traffic based on path  
+* **CloudWatch**: centralized observability  
 
 ---
 
@@ -96,12 +105,109 @@ If a deployment fails in production, it is possible to revert to a previous vers
 
 ---
 
+## 📊 Observability
+
+Basic observability was implemented using **CloudWatch**:
+
+### 🔹 Logs
+
+* Centralized logging via CloudWatch Logs  
+* Logs streamed from ECS containers using `awslogs` driver  
+* Log group: `/ecs/dockerized-api`  
+
+---
+
+### 🔹 Metrics
+
+Metrics collected from:
+
+#### ALB (Application Load Balancer)
+* `TargetResponseTime` (latency)
+* `HTTPCode_Target_5XX_Count` (application errors)
+* `RequestCount`
+
+#### ECS (Fargate)
+* `CPUUtilization`
+* `MemoryUtilization`
+
+---
+
+### 🔹 Dashboard
+
+A CloudWatch dashboard was created to visualize:
+
+```text
+✔ Latency
+✔ Errors (5XX)
+✔ CPU usage
+✔ Memory usage
+```
+
+---
+
+### 🔔 Alerts (Alarms)
+
+Three alarms were configured:
+
+#### 1. Application Errors
+
+```text
+Metric: HTTPCode_Target_5XX_Count
+Condition: > 0
+Evaluation: 2 / 2 (2 minutes)
+```
+
+Detects application failures quickly.
+
+---
+
+#### 2. CPU Usage
+
+```text
+Metric: CPUUtilization
+Condition: > 80%
+Evaluation: 5 / 5 (5 minutes)
+```
+
+Detects sustained high CPU usage.
+
+---
+
+#### 3. Memory Usage
+
+```text
+Metric: MemoryUtilization
+Condition: > 80%
+Evaluation: 5 / 5 (5 minutes)
+```
+
+Detects memory pressure.
+
+---
+
+### 📩 Notifications
+
+* Alerts are sent via **Amazon SNS (email)**
+* Real-time notifications when alarms are triggered
+
+---
+
+### 🎯 Success Criteria
+
+```text
+Ability to detect failures in less than 5 minutes
+```
+
+---
+
 ## ⚙️ Technologies Used
 
 * GitHub Actions
 * AWS ECS (Fargate)
 * Amazon ECR
 * Application Load Balancer
+* CloudWatch (Logs, Metrics, Alarms)
+* Amazon SNS
 * Docker
 
 ---
@@ -110,6 +216,8 @@ If a deployment fails in production, it is possible to revert to a previous vers
 
 * Services configured with **1 minimal task**
 * Staging can be turned off (`desired tasks = 0`)
+* Short log retention
+* Minimal dashboards and alarms
 * Optimized CPU and memory usage
 
 ---
@@ -129,14 +237,15 @@ This ensures full traceability between code and deployments.
 ## 🔐 Security
 
 * AWS credentials managed via GitHub Secrets
-* IAM roles for ECS task execution
+* IAM roles for ECS task execution and application access
+* Least privilege access (e.g., DynamoDB)
 * Environment separation
 
 ---
 
 ## ✅ Final Outcome
 
-A complete CI/CD pipeline with:
+A complete cloud-native system with:
 
 * Functional CI
 * Automated CD
@@ -144,9 +253,12 @@ A complete CI/CD pipeline with:
 * Manual approval workflow
 * Version promotion
 * Tested rollback
+* Centralized logging
+* Real-time metrics
+* Alerting system
 
 ---
 
 ## 👨‍💻 Author
 
-Project developed as a hands-on CI/CD implementation with real-world production practices.
+Project developed as a hands-on CI/CD and observability implementation with real-world production practices.
