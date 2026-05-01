@@ -1,4 +1,4 @@
-# 🚀 CI/CD with AWS ECS (Staging + Production + Rollback + Observability)
+# 🚀 CI/CD with AWS ECS (Staging + Production + Rollback + Observability + Security)
 
 ## 📌 Description
 
@@ -18,6 +18,7 @@ The goal is to simulate a real-world environment with:
 * Version promotion between environments
 * Functional and tested rollback
 * Basic observability (logs, metrics, alerts)
+* Applied security best practices
 * Cost control
 
 ---
@@ -35,10 +36,10 @@ Users → ALB → Target Groups → ECS Services → DynamoDB
         (Logs + Metrics + Alarms)
 ```
 
-* **Staging**: testing environment  
-* **Production**: stable environment  
-* **ALB**: routes traffic based on path  
-* **CloudWatch**: centralized observability  
+* **Staging**: testing environment
+* **Production**: stable environment
+* **ALB**: routes traffic based on path
+* **CloudWatch**: centralized observability
 
 ---
 
@@ -111,9 +112,9 @@ Basic observability was implemented using **CloudWatch**:
 
 ### 🔹 Logs
 
-* Centralized logging via CloudWatch Logs  
-* Logs streamed from ECS containers using `awslogs` driver  
-* Log group: `/ecs/dockerized-api`  
+* Centralized logging via CloudWatch Logs
+* Logs streamed from ECS containers using `awslogs` driver
+* Log group: `/ecs/dockerized-api`
 
 ---
 
@@ -122,11 +123,13 @@ Basic observability was implemented using **CloudWatch**:
 Metrics collected from:
 
 #### ALB (Application Load Balancer)
+
 * `TargetResponseTime` (latency)
 * `HTTPCode_Target_5XX_Count` (application errors)
 * `RequestCount`
 
 #### ECS (Fargate)
+
 * `CPUUtilization`
 * `MemoryUtilization`
 
@@ -157,10 +160,6 @@ Condition: > 0
 Evaluation: 2 / 2 (2 minutes)
 ```
 
-Detects application failures quickly.
-
----
-
 #### 2. CPU Usage
 
 ```text
@@ -168,10 +167,6 @@ Metric: CPUUtilization
 Condition: > 80%
 Evaluation: 5 / 5 (5 minutes)
 ```
-
-Detects sustained high CPU usage.
-
----
 
 #### 3. Memory Usage
 
@@ -181,14 +176,11 @@ Condition: > 80%
 Evaluation: 5 / 5 (5 minutes)
 ```
 
-Detects memory pressure.
-
 ---
 
 ### 📩 Notifications
 
 * Alerts are sent via **Amazon SNS (email)**
-* Real-time notifications when alarms are triggered
 
 ---
 
@@ -196,6 +188,55 @@ Detects memory pressure.
 
 ```text
 Ability to detect failures in less than 5 minutes
+```
+
+---
+
+## 🔐 Security
+
+Security was implemented following real-world best practices.
+
+### 🔍 Key Improvements
+
+#### 1. IAM Least Privilege
+
+* Replaced overly permissive policies with a custom IAM policy
+* Allowed only required DynamoDB actions:
+
+```text
+dynamodb:Scan
+dynamodb:GetItem
+dynamodb:PutItem
+```
+
+* Restricted access to a single table resource
+
+---
+
+#### 2. Secrets Management
+
+* No secrets stored in source code
+* No `.env` files committed
+* GitHub Secrets used for CI/CD
+* Runtime configuration handled via ECS environment variables
+
+---
+
+#### 3. Container Image Security
+
+* Enabled **ECR image scanning on push**
+* Verified vulnerability reports after image builds
+
+---
+
+### ✅ Security Best Practices Achieved
+
+```text
+✔ Least privilege enforced
+✔ No wildcard (*) permissions
+✔ Zero secrets in code
+✔ Secure runtime configuration
+✔ Vulnerability scanning enabled
 ```
 
 ---
@@ -230,16 +271,17 @@ Docker images are versioned using the commit SHA:
 dockerized-api:<commit-sha>
 ```
 
-This ensures full traceability between code and deployments.
-
 ---
 
-## 🔐 Security
+## 🔐 Security Summary
 
-* AWS credentials managed via GitHub Secrets
-* IAM roles for ECS task execution and application access
-* Least privilege access (e.g., DynamoDB)
-* Environment separation
+The system meets the defined security criteria:
+
+```text
+✔ No hardcoded secrets
+✔ Minimal IAM permissions
+✔ Secure container images
+```
 
 ---
 
@@ -247,18 +289,16 @@ This ensures full traceability between code and deployments.
 
 A complete cloud-native system with:
 
-* Functional CI
-* Automated CD
-* Staging / Production separation
+* Functional CI/CD pipeline
+* Environment separation (staging & production)
 * Manual approval workflow
 * Version promotion
 * Tested rollback
-* Centralized logging
-* Real-time metrics
-* Alerting system
+* Observability (logs, metrics, alarms)
+* Security best practices applied
 
 ---
 
 ## 👨‍💻 Author
 
-Project developed as a hands-on CI/CD and observability implementation with real-world production practices.
+Project developed as a hands-on CI/CD, observability, and security implementation with real-world production practices.
