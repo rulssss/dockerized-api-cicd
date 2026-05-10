@@ -70,3 +70,14 @@ app.get("/tasks", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// endpoint para generar carga de CPU
+app.get("/stress", (req, res) => {
+  const end = Date.now() + 10000;
+
+  while (Date.now() < end) {
+    Math.random() * Math.random();
+  }
+
+  res.send("CPU stress completed");
+});
